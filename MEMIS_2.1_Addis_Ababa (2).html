@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMIS 2.1 • Addis Ababa City Administration Health Bureau</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Poppins:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #003087;
+            --primary-dark: #002266;
+            --accent: #4A90D9;
+        }
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .section { display: none; }
+        .section.active { display: block; }
+        
+        .nav-item {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-item.active {
+            background-color: #003087;
+            color: white;
+            border-radius: 12px;
+        }
+        
+        .modern-card {
+            transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1), 
+                       box-shadow 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        .modern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        
+        .data-table {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .data-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #003087;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 9999px;
+        }
+        
+        .kpi-value {
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .modal {
+            animation: modalPop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        .gov-header {
+            background: linear-gradient(135deg, #003087 0%, #1a4a8f 100%);
+        }
+        
+        .section-header {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        
+        .app-container {
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+        
+        .nav-active {
+            background-color: #003087 !important;
+            color: white !important;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 220px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#003087] via-[#1a4a8f] to-[#003087]">
+        <div class="max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-3xl shadow-2xl mb-4">
+                    <div class="text-center">
+                        <div class="text-[#003087] text-4xl font-bold tracking-tighter">MEMIS</div>
+                        <div class="text-[#003087] text-[10px] font-semibold -mt-1 tracking-[2px]">2.1</div>
+                    </div>
+                </div>
+                <h1 class="text-4xl font-bold text-white tracking-tight">MEMIS 2.1</h1>
+                <p class="text-blue-200 mt-1 text-lg">Addis Ababa City Administration</p>
+                <p class="text-blue-300 text-sm mt-1">Health Bureau • Medical Equipment Management</p>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-2xl p-8">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900">Sign in</h2>
+                    <p class="text-gray-500 text-sm mt-1">Access the Medical Equipment Management Information System</p>
+                </div>
+
+                <form id="login-form" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Email or Username</label>
+                        <input type="text" id="username" value="abebe.kebede@aacahb.gov.et" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9] text-sm">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" value="MEMIS2026!" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9] text-sm">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="accent-[#003087]">
+                            <span class="text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-[#003087] hover:underline font-medium">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full py-3.5 bg-[#003087] hover:bg-[#002266] text-white font-semibold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.985]">
+                        <span>Sign In Securely</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="mt-6">
+                    <div class="text-xs text-center text-gray-400 mb-3">Quick Demo Access</div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="quickLogin('biomed')" class="text-xs py-2.5 bg-blue-50 hover:bg-blue-100 text-[#003087] rounded-2xl font-medium transition-colors">Biomedical Engineer</button>
+                        <button onclick="quickLogin('admin')" class="text-xs py-2.5 bg-blue-50 hover:bg-blue-100 text-[#003087] rounded-2xl font-medium transition-colors">Facility Admin</button>
+                        <button onclick="quickLogin('director')" class="text-xs py-2.5 bg-blue-50 hover:bg-blue-100 text-[#003087] rounded-2xl font-medium transition-colors">Bureau Director</button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center text-blue-300 text-xs mt-6">© 2026 Addis Ababa City Administration Health Bureau • All rights reserved</p>
+        </div>
+    </div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="main-app" class="hidden min-h-screen flex flex-col">
+        <!-- Top Navigation -->
+        <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+            <div class="max-w-[1480px] mx-auto px-6 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-[#003087] rounded-2xl flex items-center justify-center text-white">
+                            <i class="fas fa-hospital text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-xl text-[#003087] tracking-tight">MEMIS <span class="font-normal text-base align-super">2.1</span></div>
+                            <div class="text-[9px] text-gray-500 -mt-1 tracking-widest">ADDIS ABABA CITY ADMINISTRATION</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1 max-w-md mx-8">
+                    <div class="relative">
+                        <input type="text" id="global-search" placeholder="Search equipment, work orders, facilities..." 
+                               class="w-full pl-11 pr-4 py-2.5 bg-gray-100 border border-transparent rounded-3xl text-sm focus:bg-white focus:border-[#4A90D9] focus:outline-none transition-all">
+                        <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="relative cursor-pointer" onclick="showNotifications()">
+                        <div class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-2xl transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                        </div>
+                        <div class="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[9px] flex items-center justify-center rounded-full font-bold">7</div>
+                    </div>
+
+                    <div class="flex items-center gap-3 pl-4 border-l border-gray-200 cursor-pointer" onclick="showUserMenu()">
+                        <div class="text-right">
+                            <div id="user-name-header" class="font-semibold text-sm text-gray-900">Abebe Kebede</div>
+                            <div id="user-role-header" class="text-xs text-gray-500">Biomedical Engineer • Tikur Anbessa</div>
+                        </div>
+                        <div class="w-9 h-9 bg-[#003087] text-white rounded-2xl flex items-center justify-center font-bold text-sm ring-2 ring-offset-2 ring-[#003087]/20">
+                            AK
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex flex-1 max-w-[1480px] mx-auto w-full">
+            
+            <!-- Sidebar -->
+            <div class="w-72 bg-white border-r border-gray-200 flex-shrink-0 hidden lg:flex flex-col">
+                <div class="p-4 flex-1">
+                    <div class="text-xs font-semibold text-gray-400 px-4 mb-3 tracking-widest">MAIN NAVIGATION</div>
+                    
+                    <div onclick="navigateTo('dashboard')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1 active" id="nav-dashboard">
+                        <i class="fas fa-tachometer-alt w-5 text-lg"></i>
+                        <span>Dashboard</span>
+                    </div>
+                    
+                    <div onclick="navigateTo('equipment')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-equipment">
+                        <i class="fas fa-boxes w-5 text-lg"></i>
+                        <span>Equipment Inventory</span>
+                    </div>
+                    
+                    <div onclick="navigateTo('workorders')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-workorders">
+                        <i class="fas fa-clipboard-list w-5 text-lg"></i>
+                        <span>Work Orders</span>
+                    </div>
+                    
+                    <div onclick="navigateTo('procurement')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-procurement">
+                        <i class="fas fa-shopping-cart w-5 text-lg"></i>
+                        <span>Procurement</span>
+                    </div>
+                    
+                    <div onclick="navigateTo('maintenance')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-maintenance">
+                        <i class="fas fa-tools w-5 text-lg"></i>
+                        <span>Preventive Maintenance</span>
+                    </div>
+                    
+                    <div class="my-3 border-t border-gray-100"></div>
+                    
+                    <div class="text-xs font-semibold text-gray-400 px-4 mb-3 tracking-widest">ADMINISTRATION</div>
+                    
+                    <div onclick="navigateTo('organization')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-organization">
+                        <i class="fas fa-sitemap w-5 text-lg"></i>
+                        <span>Organization Structure</span>
+                    </div>
+                    
+                    <div onclick="navigateTo('settings')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-settings">
+                        <i class="fas fa-cog w-5 text-lg"></i>
+                        <span>System Settings</span>
+                    </div>
+                    
+                    <div onclick="navigateTo('helpdesk')" class="nav-item flex items-center gap-3 px-4 py-[13px] text-sm font-medium text-gray-700 cursor-pointer mb-1" id="nav-helpdesk">
+                        <i class="fas fa-headset w-5 text-lg"></i>
+                        <span>Helpdesk</span>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-t border-gray-100 text-xs text-center text-gray-400">
+                    Version 2.1.0 • February 2026<br>
+                    Addis Ababa City Administration Health Bureau
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 p-6 overflow-auto" id="main-content" style="max-height: calc(100vh - 64px)">
+                
+                <!-- DASHBOARD -->
+                <div id="section-dashboard" class="section active">
+                    <div class="flex items-end justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Dashboard</h1>
+                            <p class="text-gray-500">Addis Ababa City Administration Health Bureau • <span id="dashboard-date"></span></p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="refreshAllData()" class="px-5 py-2.5 text-sm border border-gray-300 hover:bg-gray-50 rounded-2xl flex items-center gap-2 transition-colors">
+                                <i class="fas fa-sync-alt"></i> <span>Refresh</span>
+                            </button>
+                            <button onclick="exportDashboardReport()" class="px-5 py-2.5 bg-[#003087] text-white text-sm rounded-2xl flex items-center gap-2 hover:bg-[#002266] transition-colors">
+                                <i class="fas fa-download"></i> <span>Export Report</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                        <div class="modern-card bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 tracking-wider">TOTAL EQUIPMENT</div>
+                                    <div id="kpi-total" class="text-4xl font-bold text-[#003087] kpi-value mt-1">3,248</div>
+                                </div>
+                                <div class="w-11 h-11 bg-blue-100 text-[#003087] rounded-2xl flex items-center justify-center"><i class="fas fa-boxes text-2xl"></i></div>
+                            </div>
+                            <div class="text-emerald-600 text-xs mt-3 flex items-center gap-1"><i class="fas fa-arrow-up"></i> <span>+47 this month</span></div>
+                        </div>
+                        
+                        <div class="modern-card bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 tracking-wider">FUNCTIONAL RATE</div>
+                                    <div id="kpi-functional" class="text-4xl font-bold text-emerald-600 kpi-value mt-1">82.4%</div>
+                                </div>
+                                <div class="w-11 h-11 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center"><i class="fas fa-check-circle text-2xl"></i></div>
+                            </div>
+                            <div class="text-emerald-600 text-xs mt-3">2,678 equipment online</div>
+                        </div>
+                        
+                        <div class="modern-card bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 tracking-wider">OPEN WORK ORDERS</div>
+                                    <div id="kpi-workorders" class="text-4xl font-bold text-orange-600 kpi-value mt-1">87</div>
+                                </div>
+                                <div class="w-11 h-11 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center"><i class="fas fa-tasks text-2xl"></i></div>
+                            </div>
+                            <div class="text-orange-600 text-xs mt-3">19 high priority</div>
+                        </div>
+                        
+                        <div class="modern-card bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 tracking-wider">UNDER WARRANTY</div>
+                                    <div id="kpi-warranty" class="text-4xl font-bold text-amber-600 kpi-value mt-1">31%</div>
+                                </div>
+                                <div class="w-11 h-11 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center"><i class="fas fa-shield-alt text-2xl"></i></div>
+                            </div>
+                            <div class="text-amber-600 text-xs mt-3">1,008 equipment protected</div>
+                        </div>
+                        
+                        <div class="modern-card bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 tracking-wider">FACILITIES USING MEMIS</div>
+                                    <div id="kpi-facilities" class="text-4xl font-bold text-[#003087] kpi-value mt-1">312</div>
+                                </div>
+                                <div class="w-11 h-11 bg-blue-100 text-[#003087] rounded-2xl flex items-center justify-center"><i class="fas fa-hospital text-2xl"></i></div>
+                            </div>
+                            <div class="text-emerald-600 text-xs mt-3">+12 new this quarter</div>
+                        </div>
+                        
+                        <div class="modern-card bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
+                            <div class="flex justify-between">
+                                <div>
+                                    <div class="text-xs text-gray-500 tracking-wider">PREVENTIVE COMPLIANCE</div>
+                                    <div id="kpi-compliance" class="text-4xl font-bold text-violet-600 kpi-value mt-1">94%</div>
+                                </div>
+                                <div class="w-11 h-11 bg-violet-100 text-violet-600 rounded-2xl flex items-center justify-center"><i class="fas fa-calendar-check text-2xl"></i></div>
+                            </div>
+                            <div class="text-violet-600 text-xs mt-3">Excellent performance</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Status Distribution -->
+                        <div class="lg:col-span-5 modern-card bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="font-semibold">Equipment Status Distribution</div>
+                                <div class="text-xs px-3 py-1 bg-gray-100 rounded-full">Live</div>
+                            </div>
+                            <div class="flex justify-center">
+                                <canvas id="statusChart" width="220" height="220"></canvas>
+                            </div>
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-2 mt-4 text-xs">
+                                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Functional <span class="ml-auto font-mono text-gray-500" id="status-functional">82%</span></div>
+                                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span> Not Functional <span class="ml-auto font-mono text-gray-500" id="status-nonfunctional">11%</span></div>
+                                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Not Installed <span class="ml-auto font-mono text-gray-500" id="status-notinstalled">4%</span></div>
+                                <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-purple-500"></span> Obsolete <span class="ml-auto font-mono text-gray-500" id="status-obsolete">3%</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Sub-city Distribution -->
+                        <div class="lg:col-span-4 modern-card bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+                            <div class="font-semibold mb-4">Equipment by Sub-city</div>
+                            <div class="chart-container">
+                                <canvas id="subcityChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="lg:col-span-3 modern-card bg-white rounded-3xl border border-gray-100 p-6 shadow-sm flex flex-col">
+                            <div class="font-semibold mb-4 flex items-center justify-between">
+                                <span>Recent Activity</span>
+                                <span class="text-xs text-[#003087] cursor-pointer hover:underline" onclick="navigateTo('workorders')">View all →</span>
+                            </div>
+                            <div id="recent-activity" class="flex-1 space-y-4 text-sm overflow-auto"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EQUIPMENT INVENTORY -->
+                <div id="section-equipment" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Equipment Inventory</h1>
+                            <p class="text-gray-500">All medical equipment across Addis Ababa facilities • <span id="equipment-count">3,248</span> items</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="showAddEquipmentModal()" class="px-5 py-2.5 bg-[#003087] text-white rounded-2xl flex items-center gap-2 text-sm hover:bg-[#002266]">
+                                <i class="fas fa-plus"></i> <span>Register Equipment</span>
+                            </button>
+                            <button onclick="exportEquipmentCSV()" class="px-5 py-2.5 border border-gray-300 rounded-2xl flex items-center gap-2 text-sm hover:bg-gray-50">
+                                <i class="fas fa-file-export"></i> <span>Export CSV</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 p-4 mb-4 flex flex-wrap gap-3 items-center">
+                        <div class="flex-1 min-w-[220px]">
+                            <input type="text" id="equipment-search" placeholder="Search by name, ID, manufacturer..." 
+                                   class="w-full px-4 py-2.5 border border-gray-200 rounded-2xl text-sm" onkeyup="filterEquipmentTable()">
+                        </div>
+                        <select id="status-filter" onchange="filterEquipmentTable()" class="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm bg-white">
+                            <option value="">All Status</option>
+                            <option value="Functional">Functional</option>
+                            <option value="Not Functional">Not Functional</option>
+                            <option value="Not Installed">Not Installed</option>
+                            <option value="Obsolete">Obsolete</option>
+                        </select>
+                        <select id="subcity-filter" onchange="filterEquipmentTable()" class="px-4 py-2.5 border border-gray-200 rounded-2xl text-sm bg-white">
+                            <option value="">All Sub-cities</option>
+                            <option value="Kirkos">Kirkos</option>
+                            <option value="Yeka">Yeka</option>
+                            <option value="Bole">Bole</option>
+                            <option value="Addis Ketema">Addis Ketema</option>
+                            <option value="Gulele">Gulele</option>
+                            <option value="Kolfe">Kolfe</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">INVENTORY ID</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">EQUIPMENT</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">MANUFACTURER</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">STATUS</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">DM SCORE</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">LOCATION</th>
+                                    <th class="px-6 py-4 text-center font-semibold text-xs tracking-wider w-24">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="equipment-table-body" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- WORK ORDERS -->
+                <div id="section-workorders" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Work Orders &amp; Requests</h1>
+                            <p class="text-gray-500">Manage maintenance, installation, and service requests</p>
+                        </div>
+                        <button onclick="showCreateWorkOrderModal()" class="px-5 py-2.5 bg-[#003087] text-white rounded-2xl flex items-center gap-2 text-sm hover:bg-[#002266]">
+                            <i class="fas fa-plus"></i> <span>New Work Order</span>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b bg-gray-50 flex items-center gap-4 text-sm">
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Open: <span id="wo-open-count">42</span></span>
+                                <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">In Progress: <span id="wo-progress-count">31</span></span>
+                                <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">Completed: <span id="wo-completed-count">487</span></span>
+                            </div>
+                        </div>
+                        
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">WO #</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">TYPE</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">EQUIPMENT</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">REQUESTED BY</th>
+                                    <th class="px-6 py-4 text-left font-semibold text-xs tracking-wider">STATUS</th>
+                                    <th class="px-6 py-4 text-center font-semibold text-xs tracking-wider w-20">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workorder-table-body" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PROCUREMENT -->
+                <div id="section-procurement" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Procurement Tracking</h1>
+                            <p class="text-gray-500">Equipment procurement requests and purchase orders</p>
+                        </div>
+                        <button onclick="showProcurementModal()" class="px-5 py-2.5 bg-[#003087] text-white rounded-2xl flex items-center gap-2 text-sm hover:bg-[#002266]">
+                            <i class="fas fa-plus"></i> <span>New Procurement Request</span>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">PR #</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">EQUIPMENT</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">QTY</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">STATUS</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">REQUESTED</th>
+                                        <th class="px-4 py-3 text-center font-semibold text-xs tracking-wider">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="procurement-table-body" class="divide-y"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PREVENTIVE MAINTENANCE -->
+                <div id="section-maintenance" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Preventive Maintenance Schedule</h1>
+                            <p class="text-gray-500">Planned maintenance across all facilities</p>
+                        </div>
+                        <button onclick="showMaintenanceModal()" class="px-5 py-2.5 bg-[#003087] text-white rounded-2xl flex items-center gap-2 text-sm hover:bg-[#002266]">
+                            <i class="fas fa-calendar-plus"></i> <span>Schedule Maintenance</span>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">SCHEDULE ID</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">EQUIPMENT</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">FACILITY</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">DUE DATE</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">STATUS</th>
+                                        <th class="px-4 py-3 text-center font-semibold text-xs tracking-wider">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="maintenance-table-body" class="divide-y"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ORGANIZATION -->
+                <div id="section-organization" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Organization Structure</h1>
+                            <p class="text-gray-500">Addis Ababa City Administration Health Bureau hierarchy</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-[#003087] pl-5">
+                                <div class="font-semibold text-lg">Addis Ababa City Administration Health Bureau</div>
+                                <div class="text-sm text-gray-500">312 facilities • 3,248 equipment items</div>
+                            </div>
+                            
+                            <div class="pl-8 space-y-3">
+                                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
+                                    <div class="flex-1">
+                                        <div class="font-medium">Tikur Anbessa Specialized Hospital</div>
+                                        <div class="text-xs text-gray-500">1,240 equipment • 42 biomedical staff</div>
+                                    </div>
+                                    <span class="px-3 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">98% Compliance</span>
+                                </div>
+                                
+                                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
+                                    <div class="flex-1">
+                                        <div class="font-medium">St. Paul Hospital Millennium Medical College</div>
+                                        <div class="text-xs text-gray-500">890 equipment • 31 biomedical staff</div>
+                                    </div>
+                                    <span class="px-3 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">94% Compliance</span>
+                                </div>
+                                
+                                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
+                                    <div class="flex-1">
+                                        <div class="font-medium">Yekatit 12 Hospital</div>
+                                        <div class="text-xs text-gray-500">540 equipment • 28 biomedical staff</div>
+                                    </div>
+                                    <span class="px-3 py-1 text-xs bg-emerald-100 text-emerald-700 rounded-full">91% Compliance</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div id="section-settings" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">System Settings</h1>
+                            <p class="text-gray-500">Master data and configuration</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+                            <div class="font-semibold mb-4 flex items-center gap-2"><i class="fas fa-cogs text-[#003087]"></i> Equipment Types</div>
+                            <div class="text-sm text-gray-600">12 categories configured • GMDN aligned</div>
+                        </div>
+                        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+                            <div class="font-semibold mb-4 flex items-center gap-2"><i class="fas fa-shield-alt text-[#003087]"></i> Risk &amp; DM Scoring</div>
+                            <div class="text-sm text-gray-600">Formula: DM = Function + Risk + Maintenance Requirement</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HELPDESK -->
+                <div id="section-helpdesk" class="section">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h1 class="section-header">Helpdesk &amp; Support</h1>
+                            <p class="text-gray-500">Submit and track technical support tickets</p>
+                        </div>
+                        <button onclick="showHelpdeskModal()" class="px-5 py-2.5 bg-[#003087] text-white rounded-2xl flex items-center gap-2 text-sm hover:bg-[#002266]">
+                            <i class="fas fa-ticket-alt"></i> <span>New Ticket</span>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b">
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">TICKET #</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">SUBJECT</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">PRIORITY</th>
+                                        <th class="px-4 py-3 text-left font-semibold text-xs tracking-wider">STATUS</th>
+                                        <th class="px-4 py-3 text-center font-semibold text-xs tracking-wider">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="helpdesk-table-body" class="divide-y"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Equipment Modal -->
+    <div id="add-equipment-modal" onclick="if (event.target.id === 'add-equipment-modal') closeModal('add-equipment-modal')" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
+        <div onclick="event.stopImmediatePropagation()" class="bg-white rounded-3xl w-full max-w-2xl mx-4 modal">
+            <div class="px-8 py-6 border-b flex items-center justify-between">
+                <div>
+                    <div class="font-semibold text-2xl">Register New Equipment</div>
+                    <div class="text-sm text-gray-500">Addis Ababa City Administration Health Bureau</div>
+                </div>
+                <button onclick="closeModal('add-equipment-modal')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 text-sm">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">EQUIPMENT NAME</label>
+                    <input type="text" id="eq-name" value="Oxygen Concentrator" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9]">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">MANUFACTURER</label>
+                    <input type="text" id="eq-manufacturer" value="Philips Respironics" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9]">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">MODEL</label>
+                    <input type="text" id="eq-model" value="EverGo 2025" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9]">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">SERIAL NUMBER</label>
+                    <input type="text" id="eq-serial" value="SN-2026-88471" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9]">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">SUB-CITY / FACILITY</label>
+                    <select id="eq-location" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9]">
+                        <option>Kirkos • Tikur Anbessa Specialized Hospital - ICU</option>
+                        <option>Yeka • St. Paul Hospital - Emergency</option>
+                        <option>Bole • Yekatit 12 Hospital - Pediatrics</option>
+                        <option>Addis Ketema • Gulele Health Center</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">STATUS</label>
+                    <select id="eq-status" class="w-full px-4 py-3 border border-gray-300 rounded-2xl focus:outline-none focus:border-[#4A90D9]">
+                        <option value="Functional">Functional</option>
+                        <option value="Not Functional">Not Functional</option>
+                        <option value="Not Installed">Not Installed</option>
+                    </select>
+                </div>
+                
+                <div class="md:col-span-2 bg-gray-50 rounded-2xl p-5 mt-2">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-[#003087] mb-3">
+                        <i class="fas fa-calculator"></i> 
+                        <span>DEVICE MANAGEMENT (DM) SCORE</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-xs text-gray-500">Function (2-10)</label>
+                            <input type="number" id="eq-function" value="8" min="2" max="10" oninput="calculateDMScore()" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-xl text-center font-mono text-lg focus:outline-none focus:border-[#4A90D9]">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500">Risk (1-5)</label>
+                            <input type="number" id="eq-risk" value="4" min="1" max="5" oninput="calculateDMScore()" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-xl text-center font-mono text-lg focus:outline-none focus:border-[#4A90D9]">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-500">Maintenance (1-5)</label>
+                            <input type="number" id="eq-maintenance" value="3" min="1" max="5" oninput="calculateDMScore()" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-xl text-center font-mono text-lg focus:outline-none focus:border-[#4A90D9]">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-center justify-between bg-white rounded-xl px-4 py-3 border">
+                        <div>
+                            <span class="text-xs text-gray-500">DM SCORE</span>
+                            <span id="dm-score-value" class="block text-3xl font-bold text-[#003087]">15</span>
+                        </div>
+                        <div id="dm-status-badge" class="px-4 py-1.5 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-700">INCLUDED IN INVENTORY</div>
+                    </div>
+                    <div class="text-[10px] text-gray-400 mt-2">DM = Function + Risk + Required Maintenance. Score &gt; 12 = High priority for replacement planning.</div>
+                </div>
+            </div>
+            
+            <div class="px-8 py-5 border-t flex justify-end gap-3 bg-gray-50 rounded-b-3xl">
+                <button onclick="closeModal('add-equipment-modal')" class="px-6 py-2.5 text-sm border border-gray-300 rounded-2xl hover:bg-white">Cancel</button>
+                <button onclick="addNewEquipment()" class="px-8 py-2.5 bg-[#003087] text-white text-sm rounded-2xl hover:bg-[#002266]">Register Equipment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2"></div>
+
+    <script>
+        // ==================== GLOBAL STATE ====================
+        let currentUser = null;
+        let equipmentData = [];
+        let workOrders = [];
+        let procurementData = [];
+        let maintenanceData = [];
+        let helpdeskTickets = [];
+        let charts = {};
+
+        // ==================== TAILWIND CONFIG ====================
+        function initializeTailwind() {
+            document.documentElement.style.setProperty('--accent', '#4A90D9');
+        }
+
+        // ==================== UTILITIES ====================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-emerald-600',
+                error: 'bg-red-600',
+                info: 'bg-blue-600'
+            };
+            
+            toast.className = `px-6 py-3.5 rounded-2xl shadow-xl text-white flex items-center gap-3 max-w-sm ${colors[type] || colors.info}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'} text-xl"></i>
+                <span class="text-sm">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(30px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2800);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function togglePasswordVisibility() {
+            const pwd = document.getElementById('password');
+            pwd.type = pwd.type === 'password' ? 'text' : 'password';
+        }
+
+        // ==================== DATA LAYER ====================
+        const DATA_VERSION = '2.1.0';
+
+        function saveAllData() {
+            try {
+                localStorage.setItem('memis_aa_v2.1_equipment', JSON.stringify(equipmentData));
+                localStorage.setItem('memis_aa_v2.1_workorders', JSON.stringify(workOrders));
+                localStorage.setItem('memis_aa_v2.1_procurement', JSON.stringify(procurementData));
+                localStorage.setItem('memis_aa_v2.1_maintenance', JSON.stringify(maintenanceData));
+                localStorage.setItem('memis_aa_v2.1_helpdesk', JSON.stringify(helpdeskTickets));
+                localStorage.setItem('memis_aa_v2.1_version', DATA_VERSION);
+            } catch (e) {
+                console.warn('Could not save to localStorage');
+            }
+        }
+
+        function loadAllData() {
+            const version = localStorage.getItem('memis_aa_v2.1_version');
+            
+            if (version === DATA_VERSION) {
+                equipmentData = JSON.parse(localStorage.getItem('memis_aa_v2.1_equipment') || '[]');
+                workOrders = JSON.parse(localStorage.getItem('memis_aa_v2.1_workorders') || '[]');
+                procurementData = JSON.parse(localStorage.getItem('memis_aa_v2.1_procurement') || '[]');
+                maintenanceData = JSON.parse(localStorage.getItem('memis_aa_v2.1_maintenance') || '[]');
+                helpdeskTickets = JSON.parse(localStorage.getItem('memis_aa_v2.1_helpdesk') || '[]');
+            }
+            
+            if (equipmentData.length === 0) {
+                loadDefaultData();
+            }
+        }
+
+        function loadDefaultData() {
+            equipmentData = [
+                { id: "AA-TA-ICU-001", name: "Oxygen Concentrator", manufacturer: "Philips", model: "EverGo 2025", serial: "SN-2026-88471", status: "Functional", subCity: "Kirkos", location: "Tikur Anbessa - ICU", dmScore: 15, functionScore: 8, riskScore: 4, maintenanceScore: 3, lastMaintenance: "2026-01-15", warrantyUntil: "2027-06-01" },
+                { id: "AA-TA-ICU-002", name: "Patient Monitor", manufacturer: "GE Healthcare", model: "B125", serial: "GE-2026-9921", status: "Functional", subCity: "Kirkos", location: "Tikur Anbessa - ICU", dmScore: 14, functionScore: 7, riskScore: 4, maintenanceScore: 3, lastMaintenance: "2026-02-01", warrantyUntil: "2027-08-15" },
+                { id: "AA-SP-ED-003", name: "Defibrillator", manufacturer: "Zoll", model: "R Series", serial: "ZL-2025-4412", status: "Not Functional", subCity: "Yeka", location: "St. Paul - Emergency", dmScore: 17, functionScore: 9, riskScore: 5, maintenanceScore: 3, lastMaintenance: "2025-11-20", warrantyUntil: "2026-05-01" },
+                { id: "AA-YK-PED-004", name: "Infant Incubator", manufacturer: "Atom Medical", model: "V-808 Pro", serial: "AM-2026-5510", status: "Functional", subCity: "Bole", location: "Yekatit 12 - Pediatrics", dmScore: 12, functionScore: 7, riskScore: 3, maintenanceScore: 2, lastMaintenance: "2026-02-10", warrantyUntil: "2028-01-01" },
+                { id: "AA-KK-OP-005", name: "Anesthesia Machine", manufacturer: "Dräger", model: "Fabius Tiro", serial: "DR-2025-3928", status: "Functional", subCity: "Addis Ketema", location: "Gulele Health Center - OT", dmScore: 16, functionScore: 8, riskScore: 5, maintenanceScore: 3, lastMaintenance: "2026-01-25", warrantyUntil: "2027-12-01" }
+            ];
+            
+            workOrders = [
+                { id: "WO-2026-0142", type: "Curative Maintenance", equipmentId: "AA-SP-ED-003", equipmentName: "Defibrillator (AA-SP-ED-003)", requestedBy: "Dr. Sara Tadesse", status: "Open", priority: "High", date: "2026-02-20", description: "Unit not powering on during emergency drill" },
+                { id: "WO-2026-0143", type: "Preventive Maintenance", equipmentId: "AA-TA-ICU-001", equipmentName: "Oxygen Concentrator (AA-TA-ICU-001)", requestedBy: "Abebe Kebede", status: "In Progress", priority: "Medium", date: "2026-02-18", description: "Quarterly filter replacement + calibration" },
+                { id: "WO-2026-0144", type: "Calibration Request", equipmentId: "AA-TA-ICU-002", equipmentName: "Patient Monitor (AA-TA-ICU-002)", requestedBy: "Nurse Alemayehu", status: "Open", priority: "Medium", date: "2026-02-22", description: "Annual NIBP calibration required" }
+            ];
+            
+            procurementData = [
+                { id: "PR-2026-0891", equipment: "Oxygen Concentrator", qty: 8, status: "Approved", requestedBy: "Abebe Kebede", date: "2026-01-15", facility: "Tikur Anbessa" },
+                { id: "PR-2026-0892", equipment: "Patient Monitor", qty: 12, status: "In Procurement", requestedBy: "Sara Mohammed", date: "2026-01-28", facility: "St. Paul" }
+            ];
+            
+            maintenanceData = [
+                { id: "PM-2026-0142", equipment: "Oxygen Concentrator (AA-TA-ICU-001)", facility: "Tikur Anbessa", dueDate: "2026-03-15", status: "Scheduled" },
+                { id: "PM-2026-0143", equipment: "Patient Monitor (AA-TA-ICU-002)", facility: "Tikur Anbessa", dueDate: "2026-03-01", status: "Overdue" }
+            ];
+            
+            helpdeskTickets = [
+                { id: "HD-88291", subject: "Work Order assignment error", priority: "High", status: "Open", created: "2026-02-25", description: "Cannot assign WO-2026-0142 to technician" }
+            ];
+            
+            saveAllData();
+        }
+
+        // ==================== LOGIN ====================
+        function quickLogin(type) {
+            const credentials = {
+                biomed: { name: "Abebe Kebede", role: "Biomedical Engineer", facility: "Tikur Anbessa Specialized Hospital", email: "abebe.kebede@aacahb.gov.et" },
+                admin: { name: "Sara Mohammed", role: "Facility Administrator", facility: "St. Paul Hospital", email: "sara.mohammed@aacahb.gov.et" },
+                director: { name: "Dr. Tadesse Alemu", role: "Bureau Director", facility: "Addis Ababa City Administration Health Bureau", email: "tadesse.alemu@aacahb.gov.et" }
+            };
+            
+            const user = credentials[type];
+            document.getElementById('username').value = user.email;
+            document.getElementById('password').value = "MEMIS2026!";
+            
+            setTimeout(() => login(user.email, user.role, user.facility, user.name), 300);
+        }
+
+        function login(email, role = null, facility = null, name = null) {
+            const userInput = document.getElementById('username').value || email;
+            const pass = document.getElementById('password').value;
+            
+            if (!userInput || !pass) {
+                showToast("Please enter email and password", "error");
+                return;
+            }
+            
+            currentUser = {
+                name: name || userInput.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+                role: role || "Biomedical Engineer",
+                facility: facility || "Tikur Anbessa Specialized Hospital",
+                email: userInput
+            };
+            
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            
+            document.getElementById('user-name-header').textContent = currentUser.name;
+            document.getElementById('user-role-header').textContent = `${currentUser.role} • ${currentUser.facility.split(' - ')[0]}`;
+            
+            loadAllData();
+            updateDashboardDate();
+            loadDashboard();
+            navigateTo('dashboard');
+            
+            showToast(`Welcome back, ${currentUser.name.split(' ')[0]}!`, 'success');
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                document.getElementById('main-app').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+                currentUser = null;
+            }
+        }
+
+        function showUserMenu() {
+            const menu = document.createElement('div');
+            menu.className = 'fixed right-6 top-16 bg-white shadow-xl border border-gray-100 rounded-2xl py-2 w-64 z-[200]';
+            menu.innerHTML = `
+                <div class="px-4 py-3 border-b">
+                    <div class="font-semibold">${currentUser.name}</div>
+                    <div class="text-xs text-gray-500">${currentUser.email}</div>
+                </div>
+                <div class="py-1 text-sm">
+                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-3"><i class="fas fa-user w-4 text-gray-400"></i> My Profile</div>
+                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-3"><i class="fas fa-key w-4 text-gray-400"></i> Change Password</div>
+                    <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-3"><i class="fas fa-cog w-4 text-gray-400"></i> Preferences</div>
+                </div>
+                <div class="border-t pt-1">
+                    <div onclick="logout(); this.closest('.fixed').remove()" class="px-4 py-2 text-red-600 hover:bg-red-50 cursor-pointer flex items-center gap-3"><i class="fas fa-sign-out-alt w-4"></i> Sign Out</div>
+                </div>
+            `;
+            document.body.appendChild(menu);
+            
+            setTimeout(() => {
+                document.addEventListener('click', function handler(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        document.removeEventListener('click', handler);
+                    }
+                }, { once: true });
+            }, 100);
+        }
+
+        function showNotifications() {
+            showToast("You have 7 new notifications", "info");
+        }
+
+        // ==================== DASHBOARD ====================
+        function updateDashboardDate() {
+            const el = document.getElementById('dashboard-date');
+            if (el) el.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }
+
+        function updateKPIs() {
+            const total = equipmentData.length;
+            const functional = equipmentData.filter(e => e.status === 'Functional').length;
+            const nonFunctional = equipmentData.filter(e => e.status === 'Not Functional').length;
+            const openWO = workOrders.filter(w => w.status === 'Open').length;
+            
+            const functionalRate = total > 0 ? ((functional / total) * 100).toFixed(1) : 0;
+            
+            document.getElementById('kpi-total').textContent = total.toLocaleString();
+            document.getElementById('kpi-functional').textContent = functionalRate + '%';
+            document.getElementById('kpi-workorders').textContent = openWO;
+            document.getElementById('kpi-warranty').textContent = '31%';
+            document.getElementById('kpi-facilities').textContent = '312';
+            document.getElementById('kpi-compliance').textContent = '94%';
+        }
+
+        function loadDashboard() {
+            updateKPIs();
+            renderStatusChart();
+            renderSubcityChart();
+            renderRecentActivity();
+        }
+
+        function renderStatusChart() {
+            const ctx = document.getElementById('statusChart');
+            if (!ctx) return;
+            
+            if (charts.status) charts.status.destroy();
+            
+            const functional = equipmentData.filter(e => e.status === 'Functional').length;
+            const nonFunctional = equipmentData.filter(e => e.status === 'Not Functional').length;
+            const notInstalled = equipmentData.filter(e => e.status === 'Not Installed').length;
+            const obsolete = equipmentData.filter(e => e.status === 'Obsolete').length;
+            
+            charts.status = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Functional', 'Not Functional', 'Not Installed', 'Obsolete'],
+                    datasets: [{
+                        data: [functional, nonFunctional, notInstalled, obsolete],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderSubcityChart() {
+            const ctx = document.getElementById('subcityChart');
+            if (!ctx) return;
+            
+            if (charts.subcity) charts.subcity.destroy();
+            
+            const counts = {};
+            equipmentData.forEach(eq => {
+                counts[eq.subCity] = (counts[eq.subCity] || 0) + 1;
+            });
+            
+            charts.subcity = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(counts),
+                    datasets: [{
+                        label: 'Equipment',
+                        data: Object.values(counts),
+                        backgroundColor: '#4A90D9',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        function renderRecentActivity() {
+            const container = document.getElementById('recent-activity');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fas fa-check text-sm"></i></div>
+                    <div class="flex-1 text-xs">
+                        <div>WO-2026-0145 completed for <strong>Anesthesia Machine</strong></div>
+                        <div class="text-gray-400">2 hours ago • Tikur Anbessa</div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fas fa-plus text-sm"></i></div>
+                    <div class="flex-1 text-xs">
+                        <div>New equipment registered: <strong>Infant Incubator</strong></div>
+                        <div class="text-gray-400">Yesterday • Yekatit 12</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function refreshAllData() {
+            loadAllData();
+            loadDashboard();
+            showToast("Dashboard refreshed with latest data", "success");
+        }
+
+        function exportDashboardReport() {
+            showToast("Generating PDF report... (demo)", "info");
+            setTimeout(() => {
+                showToast("Report downloaded successfully!", "success");
+            }, 1200);
+        }
+
+        // ==================== EQUIPMENT ====================
+        function filterEquipmentTable() {
+            const search = document.getElementById('equipment-search').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const subcityFilter = document.getElementById('subcity-filter').value;
+            
+            const tbody = document.getElementById('equipment-table-body');
+            tbody.innerHTML = '';
+            
+            let filtered = equipmentData;
+            
+            if (search) {
+                filtered = filtered.filter(eq => 
+                    eq.name.toLowerCase().includes(search) || 
+                    eq.id.toLowerCase().includes(search) ||
+                    eq.manufacturer.toLowerCase().includes(search)
+                );
+            }
+            
+            if (statusFilter) {
+                filtered = filtered.filter(eq => eq.status === statusFilter);
+            }
+            
+            if (subcityFilter) {
+                filtered = filtered.filter(eq => eq.subCity === subcityFilter);
+            }
+            
+            filtered.forEach((eq, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors';
+                
+                const statusClass = {
+                    'Functional': 'bg-emerald-100 text-emerald-700',
+                    'Not Functional': 'bg-red-100 text-red-700',
+                    'Not Installed': 'bg-amber-100 text-amber-700',
+                    'Obsolete': 'bg-purple-100 text-purple-700'
+                }[eq.status] || 'bg-gray-100 text-gray-700';
+                
+                const dmColor = eq.dmScore > 12 ? 'text-red-600' : 'text-emerald-600';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 font-mono text-xs text-gray-500">${eq.id}</td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium">${eq.name}</div>
+                        <div class="text-xs text-gray-400">${eq.model}</div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">${eq.manufacturer}</td>
+                    <td class="px-6 py-4">
+                        <span class="status-badge ${statusClass}">${eq.status}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold ${dmColor}">${eq.dmScore}</span>
+                            <span class="text-[10px] text-gray-400">(${eq.functionScore}+${eq.riskScore}+${eq.maintenanceScore})</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <div>${eq.subCity}</div>
+                        <div class="text-xs text-gray-400">${eq.location}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="viewEquipment(${index})" class="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded-lg mr-1">View</button>
+                        <button onclick="editEquipment(${index})" class="px-3 py-1 text-xs bg-[#003087] text-white hover:bg-[#002266] rounded-lg">Edit</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('equipment-count').textContent = filtered.length.toLocaleString();
+        }
+
+        function loadEquipmentTable() {
+            filterEquipmentTable();
+        }
+
+        function calculateDMScore() {
+            const func = parseInt(document.getElementById('eq-function').value) || 0;
+            const risk = parseInt(document.getElementById('eq-risk').value) || 0;
+            const maint = parseInt(document.getElementById('eq-maintenance').value) || 0;
+            
+            const dm = func + risk + maint;
+            const scoreEl = document.getElementById('dm-score-value');
+            const badgeEl = document.getElementById('dm-status-badge');
+            
+            if (scoreEl) scoreEl.textContent = dm;
+            
+            if (badgeEl) {
+                if (dm > 12) {
+                    badgeEl.textContent = 'HIGH PRIORITY - PLAN REPLACEMENT';
+                    badgeEl.className = 'px-4 py-1.5 rounded-2xl text-sm font-semibold bg-red-100 text-red-700';
+                } else {
+                    badgeEl.textContent = 'INCLUDED IN INVENTORY';
+                    badgeEl.className = 'px-4 py-1.5 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-700';
+                }
+            }
+        }
+
+        function addNewEquipment() {
+            const func = parseInt(document.getElementById('eq-function').value) || 8;
+            const risk = parseInt(document.getElementById('eq-risk').value) || 4;
+            const maint = parseInt(document.getElementById('eq-maintenance').value) || 3;
+            const dmScore = func + risk + maint;
+            
+            const newEq = {
+                id: "AA-" + ["TA","SP","YK","KK","GK"][Math.floor(Math.random()*5)] + "-" + ["ICU","ED","OP","PED","RAD"][Math.floor(Math.random()*5)] + "-" + String(Math.floor(100 + Math.random() * 900)),
+                name: document.getElementById('eq-name').value || "New Equipment",
+                manufacturer: document.getElementById('eq-manufacturer').value || "Unknown",
+                model: document.getElementById('eq-model').value || "Model X",
+                serial: document.getElementById('eq-serial').value || "SN-" + Date.now(),
+                status: document.getElementById('eq-status').value,
+                subCity: "Kirkos",
+                location: document.getElementById('eq-location').value,
+                dmScore: dmScore,
+                functionScore: func,
+                riskScore: risk,
+                maintenanceScore: maint,
+                lastMaintenance: new Date().toISOString().split('T')[0],
+                warrantyUntil: "2028-12-31"
+            };
+            
+            equipmentData.unshift(newEq);
+            saveAllData();
+            loadEquipmentTable();
+            updateKPIs();
+            refreshChartsIfOpen();
+            closeModal('add-equipment-modal');
+            showToast("Equipment registered successfully!", "success");
+        }
+
+        function viewEquipment(index) {
+            const eq = equipmentData[index];
+            alert(`Equipment Details\n\nID: ${eq.id}\nName: ${eq.name}\nManufacturer: ${eq.manufacturer} ${eq.model}\nSerial: ${eq.serial}\nStatus: ${eq.status}\nDM Score: ${eq.dmScore} (${eq.functionScore} + ${eq.riskScore} + ${eq.maintenanceScore})\nLocation: ${eq.subCity} - ${eq.location}\nLast Maintenance: ${eq.lastMaintenance}\nWarranty Until: ${eq.warrantyUntil}`);
+        }
+
+        function editEquipment(index) {
+            const eq = equipmentData[index];
+            const newStatus = prompt(`Update status for ${eq.name} (current: ${eq.status})`, eq.status);
+            
+            if (newStatus && ['Functional', 'Not Functional', 'Not Installed', 'Obsolete'].includes(newStatus)) {
+                eq.status = newStatus;
+                saveAllData();
+                loadEquipmentTable();
+                updateKPIs();
+                refreshChartsIfOpen();
+                showToast("Status updated successfully", "success");
+            }
+        }
+
+        function refreshChartsIfOpen() {
+            if (document.getElementById('section-dashboard').classList.contains('active')) {
+                loadDashboard();
+            }
+        }
+
+        function exportEquipmentCSV() {
+            if (!equipmentData.length) {
+                showToast("No equipment data to export", "error");
+                return;
+            }
+            
+            let csv = "Inventory ID,Name,Manufacturer,Model,Serial,Status,DM Score,Sub City,Location,Last Maintenance,Warranty Until\n";
+            
+            equipmentData.forEach(eq => {
+                csv += `"${eq.id}","${eq.name}","${eq.manufacturer}","${eq.model}","${eq.serial}","${eq.status}",${eq.dmScore},"${eq.subCity}","${eq.location}","${eq.lastMaintenance}","${eq.warrantyUntil}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `MEMIS_Addis_Ababa_Equipment_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast("CSV exported successfully", "success");
+        }
+
+        // ==================== WORK ORDERS ====================
+        function loadWorkOrderTable() {
+            const tbody = document.getElementById('workorder-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            workOrders.forEach((wo, index) => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                
+                const statusClass = {
+                    'Open': 'bg-red-100 text-red-700',
+                    'In Progress': 'bg-amber-100 text-amber-700',
+                    'Completed': 'bg-emerald-100 text-emerald-700'
+                }[wo.status] || 'bg-gray-100 text-gray-700';
+                
+                const priorityClass = wo.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700';
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 font-mono text-xs">${wo.id}</td>
+                    <td class="px-6 py-4">${wo.type}</td>
+                    <td class="px-6 py-4 text-sm">${wo.equipmentName}</td>
+                    <td class="px-6 py-4 text-sm">${wo.requestedBy}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <span class="status-badge ${statusClass}">${wo.status}</span>
+                            <span class="status-badge ${priorityClass}">${wo.priority}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="updateWorkOrderStatus(${index})" class="px-3 py-1 text-xs bg-[#003087] text-white rounded-lg">Update</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            document.getElementById('wo-open-count').textContent = workOrders.filter(w => w.status === 'Open').length;
+            document.getElementById('wo-progress-count').textContent = workOrders.filter(w => w.status === 'In Progress').length;
+            document.getElementById('wo-completed-count').textContent = workOrders.filter(w => w.status === 'Completed').length;
+        }
+
+        function showCreateWorkOrderModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-[100]';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl w-full max-w-lg mx-4 modal p-8">
+                    <div class="font-semibold text-2xl mb-6">Create New Work Order</div>
+                    
+                    <div class="space-y-5 text-sm">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">REQUEST TYPE</label>
+                            <select id="wo-type" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                                <option>Curative Maintenance</option>
+                                <option>Preventive Maintenance</option>
+                                <option>Calibration Request</option>
+                                <option>Installation Request</option>
+                                <option>Disposal Request</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">EQUIPMENT</label>
+                            <select id="wo-equipment" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                                ${equipmentData.map(eq => `<option value="${eq.id}">${eq.name} (${eq.id})</option>`).join('')}
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">PRIORITY</label>
+                                <select id="wo-priority" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                                    <option>High</option>
+                                    <option selected>Medium</option>
+                                    <option>Low</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">DUE DATE</label>
+                                <input type="date" id="wo-due" value="2026-03-15" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">DESCRIPTION</label>
+                            <textarea id="wo-description" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-2xl" placeholder="Describe the issue or request..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-8">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 py-3 border border-gray-300 rounded-2xl">Cancel</button>
+                        <button onclick="createWorkOrder(this)" class="flex-1 py-3 bg-[#003087] text-white rounded-2xl">Create Work Order</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function createWorkOrder(btn) {
+            const type = document.getElementById('wo-type').value;
+            const equipmentId = document.getElementById('wo-equipment').value;
+            const priority = document.getElementById('wo-priority').value;
+            const dueDate = document.getElementById('wo-due').value;
+            const description = document.getElementById('wo-description').value || 'No description provided';
+            
+            const equipment = equipmentData.find(e => e.id === equipmentId);
+            
+            const newWO = {
+                id: "WO-2026-" + String(1000 + workOrders.length),
+                type: type,
+                equipmentId: equipmentId,
+                equipmentName: equipment ? `${equipment.name} (${equipmentId})` : equipmentId,
+                requestedBy: currentUser.name,
+                status: "Open",
+                priority: priority,
+                date: new Date().toISOString().split('T')[0],
+                dueDate: dueDate,
+                description: description
+            };
+            
+            workOrders.unshift(newWO);
+            saveAllData();
+            loadWorkOrderTable();
+            btn.closest('.fixed').remove();
+            showToast("Work Order created successfully", "success");
+        }
+
+        function updateWorkOrderStatus(index) {
+            const wo = workOrders[index];
+            const statuses = ['Open', 'In Progress', 'Completed', 'Closed'];
+            const newStatus = prompt(`Update status for ${wo.id}`, wo.status);
+            
+            if (newStatus && statuses.includes(newStatus)) {
+                wo.status = newStatus;
+                saveAllData();
+                loadWorkOrderTable();
+                showToast("Work order status updated", "success");
+            }
+        }
+
+        // ==================== PROCUREMENT ====================
+        function loadProcurementTable() {
+            const tbody = document.getElementById('procurement-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            procurementData.forEach((pr, index) => {
+                const row = document.createElement('tr');
+                const statusClass = pr.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : pr.status === 'In Procurement' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700';
+                
+                row.innerHTML = `
+                    <td class="px-4 py-4 font-mono text-xs">${pr.id}</td>
+                    <td class="px-4 py-4">${pr.equipment}</td>
+                    <td class="px-4 py-4">${pr.qty}</td>
+                    <td class="px-4 py-4"><span class="status-badge ${statusClass}">${pr.status}</span></td>
+                    <td class="px-4 py-4 text-sm">${pr.requestedBy} • ${pr.date}</td>
+                    <td class="px-4 py-4 text-center"><button onclick="updateProcurementStatus(${index})" class="px-3 py-1 text-xs bg-[#003087] text-white rounded">Update</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showProcurementModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-[100]';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl w-full max-w-md mx-4 modal p-8">
+                    <div class="font-semibold text-2xl mb-6">New Procurement Request</div>
+                    
+                    <div class="space-y-5 text-sm">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">EQUIPMENT</label>
+                            <input type="text" id="pr-equipment" value="Patient Monitor" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">QUANTITY</label>
+                                <input type="number" id="pr-qty" value="5" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">FACILITY</label>
+                                <select id="pr-facility" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                                    <option>Tikur Anbessa</option>
+                                    <option>St. Paul Hospital</option>
+                                    <option>Yekatit 12</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-8">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 py-3 border border-gray-300 rounded-2xl">Cancel</button>
+                        <button onclick="createProcurementRequest(this)" class="flex-1 py-3 bg-[#003087] text-white rounded-2xl">Submit Request</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function createProcurementRequest(btn) {
+            const equipment = document.getElementById('pr-equipment').value;
+            const qty = document.getElementById('pr-qty').value;
+            const facility = document.getElementById('pr-facility').value;
+            
+            procurementData.unshift({
+                id: "PR-2026-" + String(9000 + procurementData.length),
+                equipment: equipment,
+                qty: parseInt(qty),
+                status: "Pending Approval",
+                requestedBy: currentUser.name,
+                date: new Date().toISOString().split('T')[0],
+                facility: facility
+            });
+            
+            saveAllData();
+            loadProcurementTable();
+            btn.closest('.fixed').remove();
+            showToast("Procurement request submitted", "success");
+        }
+
+        function updateProcurementStatus(index) {
+            const statuses = ['Pending Approval', 'Approved', 'In Procurement', 'Delivered', 'Cancelled'];
+            const current = procurementData[index].status;
+            const newStatus = prompt(`Update status`, current);
+            
+            if (newStatus && statuses.includes(newStatus)) {
+                procurementData[index].status = newStatus;
+                saveAllData();
+                loadProcurementTable();
+                showToast("Procurement status updated", "success");
+            }
+        }
+
+        // ==================== PREVENTIVE MAINTENANCE ====================
+        function loadMaintenanceTable() {
+            const tbody = document.getElementById('maintenance-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            maintenanceData.forEach((m, index) => {
+                const row = document.createElement('tr');
+                const statusClass = m.status === 'Overdue' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700';
+                
+                row.innerHTML = `
+                    <td class="px-4 py-4 font-mono text-xs">${m.id}</td>
+                    <td class="px-4 py-4">${m.equipment}</td>
+                    <td class="px-4 py-4">${m.facility}</td>
+                    <td class="px-4 py-4">${m.dueDate}</td>
+                    <td class="px-4 py-4"><span class="status-badge ${statusClass}">${m.status}</span></td>
+                    <td class="px-4 py-4 text-center"><button onclick="completeMaintenance(${index})" class="px-3 py-1 text-xs bg-[#003087] text-white rounded">Complete</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showMaintenanceModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-[100]';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl w-full max-w-md mx-4 modal p-8">
+                    <div class="font-semibold text-2xl mb-6">Schedule Preventive Maintenance</div>
+                    
+                    <div class="space-y-5 text-sm">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">EQUIPMENT</label>
+                            <select id="pm-equipment" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                                ${equipmentData.map(eq => `<option value="${eq.id}">${eq.name} (${eq.id})</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">FACILITY</label>
+                                <input type="text" id="pm-facility" value="Tikur Anbessa" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">DUE DATE</label>
+                                <input type="date" id="pm-due" value="2026-04-15" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-8">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 py-3 border border-gray-300 rounded-2xl">Cancel</button>
+                        <button onclick="createMaintenanceSchedule(this)" class="flex-1 py-3 bg-[#003087] text-white rounded-2xl">Schedule</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function createMaintenanceSchedule(btn) {
+            const equipmentId = document.getElementById('pm-equipment').value;
+            const facility = document.getElementById('pm-facility').value;
+            const dueDate = document.getElementById('pm-due').value;
+            
+            const equipment = equipmentData.find(e => e.id === equipmentId);
+            
+            maintenanceData.unshift({
+                id: "PM-2026-" + String(2000 + maintenanceData.length),
+                equipment: equipment ? `${equipment.name} (${equipmentId})` : equipmentId,
+                facility: facility,
+                dueDate: dueDate,
+                status: "Scheduled"
+            });
+            
+            saveAllData();
+            loadMaintenanceTable();
+            btn.closest('.fixed').remove();
+            showToast("Maintenance scheduled successfully", "success");
+        }
+
+        function completeMaintenance(index) {
+            maintenanceData[index].status = "Completed";
+            saveAllData();
+            loadMaintenanceTable();
+            showToast("Maintenance marked as completed", "success");
+        }
+
+        // ==================== HELPDESK ====================
+        function loadHelpdeskTable() {
+            const tbody = document.getElementById('helpdesk-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            helpdeskTickets.forEach((ticket, index) => {
+                const row = document.createElement('tr');
+                const statusClass = ticket.status === 'Resolved' ? 'bg-emerald-100 text-emerald-700' : ticket.status === 'In Progress' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700';
+                const priorityClass = ticket.priority === 'High' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700';
+                
+                row.innerHTML = `
+                    <td class="px-4 py-4 font-mono text-xs">${ticket.id}</td>
+                    <td class="px-4 py-4">${ticket.subject}</td>
+                    <td class="px-4 py-4"><span class="status-badge ${priorityClass}">${ticket.priority}</span></td>
+                    <td class="px-4 py-4"><span class="status-badge ${statusClass}">${ticket.status}</span></td>
+                    <td class="px-4 py-4 text-center">
+                        <button onclick="viewTicket(${index})" class="px-3 py-1 text-xs bg-gray-100 rounded mr-1">View</button>
+                        <button onclick="resolveTicket(${index})" class="px-3 py-1 text-xs bg-emerald-600 text-white rounded">Resolve</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function showHelpdeskModal() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-[100]';
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl w-full max-w-md mx-4 modal p-8">
+                    <div class="font-semibold text-2xl mb-6">Submit Support Ticket</div>
+                    
+                    <div class="space-y-5 text-sm">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">SUBJECT</label>
+                            <input type="text" id="ticket-subject" value="Issue with equipment assignment" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 mb-1 tracking-wider">DESCRIPTION</label>
+                            <textarea id="ticket-desc" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-2xl">Please describe the issue in detail...</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 mt-8">
+                        <button onclick="this.closest('.fixed').remove()" class="flex-1 py-3 border border-gray-300 rounded-2xl">Cancel</button>
+                        <button onclick="submitHelpdeskTicket(this)" class="flex-1 py-3 bg-[#003087] text-white rounded-2xl">Submit Ticket</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function submitHelpdeskTicket(btn) {
+            const subject = document.getElementById('ticket-subject').value;
+            const description = document.getElementById('ticket-desc').value;
+            
+            helpdeskTickets.unshift({
+                id: "HD-" + String(90000 + helpdeskTickets.length),
+                subject: subject,
+                priority: "Medium",
+                status: "Open",
+                created: new Date().toISOString().split('T')[0],
+                description: description
+            });
+            
+            saveAllData();
+            loadHelpdeskTable();
+            btn.closest('.fixed').remove();
+            showToast("Ticket submitted successfully. Reference: HD-88292", "success");
+        }
+
+        function viewTicket(index) {
+            const t = helpdeskTickets[index];
+            alert(`Ticket ${t.id}\n\nSubject: ${t.subject}\nPriority: ${t.priority}\nStatus: ${t.status}\nCreated: ${t.created}\n\n${t.description}`);
+        }
+
+        function resolveTicket(index) {
+            helpdeskTickets[index].status = "Resolved";
+            saveAllData();
+            loadHelpdeskTable();
+            showToast("Ticket resolved", "success");
+        }
+
+        // ==================== NAVIGATION ====================
+        function navigateTo(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            const target = document.getElementById('section-' + section);
+            if (target) target.classList.add('active');
+            
+            document.querySelectorAll('[id^="nav-"]').forEach(el => el.classList.remove('nav-active', 'active'));
+            const navEl = document.getElementById('nav-' + section);
+            if (navEl) navEl.classList.add('nav-active', 'active');
+            
+            if (section === 'dashboard') loadDashboard();
+            if (section === 'equipment') loadEquipmentTable();
+            if (section === 'workorders') loadWorkOrderTable();
+            if (section === 'procurement') loadProcurementTable();
+            if (section === 'maintenance') loadMaintenanceTable();
+            if (section === 'helpdesk') loadHelpdeskTable();
+        }
+
+        // ==================== INITIALIZATION ====================
+        function initializeApp() {
+            initializeTailwind();
+            
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    login();
+                });
+            }
+            
+            const globalSearch = document.getElementById('global-search');
+            if (globalSearch) {
+                globalSearch.addEventListener('keyup', function(e) {
+                    if (e.key === 'Enter' && this.value.trim()) {
+                        navigateTo('equipment');
+                        setTimeout(() => {
+                            const searchInput = document.getElementById('equipment-search');
+                            if (searchInput) {
+                                searchInput.value = this.value;
+                                filterEquipmentTable();
+                            }
+                        }, 300);
+                    }
+                });
+            }
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.getElementById('main-app').classList.contains('hidden') === false) {
+                    e.preventDefault();
+                    const search = document.getElementById('equipment-search');
+                    if (search) search.focus();
+                }
+            });
+            
+            console.log('%c[MEMIS 2.1] Addis Ababa City Administration Health Bureau - Modern prototype initialized successfully.', 'color:#003087; font-size: 10px');
+        }
+        
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
